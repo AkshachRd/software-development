@@ -62,15 +62,15 @@ package "Яндекс Облако" as cloud {
     }
 
     Container(kafka, "Yandex Managed Service for Apache Kafka", "Apache Kafka", "Асинхронная связь между сервисами")
-}
 
-package "Yandex Managed Service for PostgreSQL" as databases {
+    package "Yandex Managed Service for PostgreSQL" as databases {
     ContainerDb(user_db, "User Database", "PostgreSQL", "Хранение информации о пользователях")
     ContainerDb(course_db, "Course Content Database", "PostgreSQL", "Хранение материалов и метаданных курсов")
     ContainerDb(statistics_db, "Statistics Database", "PostgreSQL", "Хранение данных аналитики и статистики")
     ContainerDb(notification_db, "Notification Database", "PostgreSQL", "Хранение данных уведомлений")
     ContainerDb(forum_db, "Forum Database", "PostgreSQL", "Хранение сообщений форумов и комментариев")
     ContainerDb(cert_db, "Certificate Database", "PostgreSQL", "Хранение данных сертификатов")
+    }
 }
 
 System_Ext(email_service, "Email Service", "Сервис доставки электронной почты")
