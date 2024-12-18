@@ -2,7 +2,7 @@
 
 title "C4. Обслуживание системы электронного обучения"
 
-package "Облачная инфраструктура" as cloud_infra {
+package "Яндекс Облако Kubernates" as cloud_infra {
   [Docker] as docker << (C, #FFAAAA) >>
   [Контейнеры] as containers << (C, #FFAAAA) >>
 }
@@ -10,9 +10,9 @@ package "Облачная инфраструктура" as cloud_infra {
 package "Система E-learning - обслуживание" as maintenance {
     actor "Администратор" as admin
     actor "Техническая поддержка" as tech_support
-    package "Облачные сервисы" as cloud_services {
-      [Система мониторинга] as monitoring_service << (C, #FFAAAA) >>
-      [Система резервного копирования] as backup_service << (C, #FFAAAA) >>
+    package "Яндекс Облако" as cloud_services {
+      [Система мониторинга (Yandex Monitoring)] as monitoring_service << (C, #FFAAAA) >>
+      [Система резервного копирования (Yandex Cloud Backup)] as backup_service << (C, #FFAAAA) >>
     }
 }
 
