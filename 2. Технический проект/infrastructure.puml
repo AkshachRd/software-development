@@ -1,50 +1,115 @@
-@startuml
+@startuml k
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4.puml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
-title C4 Infrastructure Diagram - Learning Management System (LMS)
+title "C4. Инфроструктура системы электронного обучения"
 
-System_Boundary(system_boundary, "LMS System") {
-    Container(spa, "LMS Web Application", "React, JavaScript", "Клиентское веб-приложение с адаптивным дизайном")
+package "Облачный Провайдер" as cloud {
+    Container(nginx, "Nginx", "Nginx", "Обратный прокси и балансировщик нагрузки")
 
-    Container(http_server, "Nginx", "Nginx", "Сервер статики и обратный прокси")
+    package "Kubernetes Кластер" as k8s_cluster {
+        package "Auth Pod" as auth_pod {
+            Container(auth_service, "Auth Service", "Go", "Сервис аутентификации и авторизации")
+        }
 
-    Container(app_server, "Backend API", "Node.js, Express", "Серверная часть приложения, предоставляющая API")
+        package "User Management Pod" as user_pod {
+            Container(user_service, "User Management Service", "Go", "Управление профилями пользователей")
+        }
 
-    ContainerDb(database, "Application Database", "PostgreSQL", "База данных приложения")
+        package "Course Management Pod" as course_pod {
+            Container(course_service, "Course Management Service", "Go", "Создание и редактирование курсов")
+        }
 
-    Container(auth_service, "Authentication Service", "Node.js, Express", "Сервис аутентификации и авторизации")
+        package "Content Delivery Pod" as content_pod {
+            Container(content_service, "Content Delivery Service", "Go", "Доставка и потоковое вещание материалов курса")
+        }
 
-    Container(content_service, "Content Management Service", "Node.js, Express", "Сервис управления учебным контентом")
+        package "Testing Pod" as testing_pod {
+            Container(testing_service, "Testing Service", "Go", "Проведение тестов и квизов")
+        }
 
-    Container(notification_service, "Notification Service", "Node.js, Express", "Сервис отправки уведомлений")
+        package "Certificate Pod" as certificate_pod {
+            Container(certificate_service, "Certificate Service", "Go", "Генерация и выдача сертификатов")
+        }
+
+        package "Notification Pod" as notification_pod {
+            Container(notification_service, "Notification Service", "Go", "Уведомления пользователей")
+        }
+
+        package "Forum Pod" as forum_pod {
+            Container(forum_service, "Forum Service", "Go", "Форумы и комментарии к курсам")
+        }
+
+        package "Analytics Pod" as analytics_pod {
+            Container(analytics_service, "Analytics Service", "Go", "Статистика и аналитика")
+        }
+
+        package "Messaging Pod" as messaging_pod {
+            Container(messaging_service, "Messaging Service", "Go", "Чат и обмен сообщениями")
+        }
+
+        package "Admin Pod" as admin_pod {
+            Container(admin_service, "Admin Service", "Go", "Администрирование системы")
+        }
+
+        package "Support Pod" as support_pod {
+            Container(support_service, "Support Service", "Go", "Техническая поддержка")
+        }
+
+        package "Search Pod" as search_pod {
+            Container(search_service, "Search Service", "Go", "Поиск и каталогизация курсов")
+        }
+    }
+
+    Container(kafka, "Брокер сообщений", "Apache Kafka", "Асинхронная связь между сервисами")
 }
 
-System_Ext(email_service, "Email Delivery Service", "SMTP", "Сервис отправки электронных писем")
+package "Серверы Баз Данных" as databases {
+    ContainerDb(user_db, "User Database", "PostgreSQL", "Хранение информации о пользователях")
+    ContainerDb(course_db, "Course Content Database", "PostgreSQL", "Хранение материалов и метаданных курсов")
+    ContainerDb(analytics_db, "Analytics Database", "PostgreSQL", "Хранение данных аналитики и статистики")
+    ContainerDb(notification_db, "Notification Database", "PostgreSQL", "Хранение данных уведомлений")
+    ContainerDb(forum_db, "Forum Database", "PostgreSQL", "Хранение сообщений форумов и комментариев")
+    ContainerDb(cert_db, "Certificate Database", "PostgreSQL", "Хранение данных сертификатов")
+}
 
-System_Ext(sms_service, "SMS Gateway", "External API", "Сервис отправки SMS сообщений")
+System_Ext(email_service, "Email Service", "Сервис доставки электронной почты")
+System_Ext(push_service, "Push Notification Service", "Сервис отправки Push-уведомлений")
+System_Ext(media_storage, "Хранилище медиа", "Облачное хранилище (AWS S3)")
+System_Ext(search_engine, "Search Engine", "Elasticsearch", "Поисковый движок для полнотекстового поиска")
 
-System_Ext(sso_provider, "SSO Provider", "OAuth2/OpenID Connect", "Сервис единого входа для пользователей")
+' Соединения между сервисами и базами данных
+Rel(auth_service, user_db, "Чтение/Запись", "Go Database Driver")
+Rel(user_service, user_db, "Чтение/Запись", "Go Database Driver")
+Rel(course_service, course_db, "Чтение/Запись", "Go Database Driver")
+Rel(content_service, course_db, "Чтение материалов", "Go Database Driver")
+Rel(testing_service, course_db, "Чтение тестов", "Go Database Driver")
+Rel(testing_service, user_db, "Запись результатов", "Go Database Driver")
+Rel(certificate_service, cert_db, "Чтение/Запись", "Go Database Driver")
+Rel(notification_service, notification_db, "Чтение/Запись", "Go Database Driver")
+Rel(forum_service, forum_db, "Чтение/Запись", "Go Database Driver")
+Rel(analytics_service, analytics_db, "Чтение/Запись", "Go Database Driver")
+Rel(messaging_service, user_db, "Чтение профилей", "Go Database Driver")
+Rel(admin_service, user_db, "Администрирование", "Go Database Driver")
+Rel(admin_service, course_db, "Администрирование", "Go Database Driver")
+Rel(admin_service, cert_db, "Администрирование", "Go Database Driver")
+Rel(support_service, user_db, "Чтение/Запись", "Go Database Driver")
+Rel(search_service, course_db, "Индексирование данных", "REST API")
+Rel(search_service, forum_db, "Индексирование данных", "REST API")
 
-System_Ext(storage_service, "File Storage Service", "AWS S3 or similar", "Облачное хранилище для учебного контента")
+' Асинхронная связь между сервисами через Kafka
+Rel(k8s_cluster, kafka, "Публикация/Подписка на события", "Kafka API")
 
+' Взаимодействие с внешними системами
+Rel(notification_service, email_service, "Отправка Email", "SMTP/REST API")
+Rel(notification_service, push_service, "Отправка Push-уведомлений", "REST API")
+Rel(content_service, media_storage, "Загрузка/Скачивание контента", "REST API")
+Rel(search_service, search_engine, "Индексирование/Поиск данных", "REST API")
 
-Rel(spa, http_server, "Запросы статики и API", "HTTPS")
-Rel(http_server, spa, "Обслуживание статики", "HTTPS")
-Rel(http_server, app_server, "Проксирование API запросов", "HTTP")
+' Соединение Nginx с Kubernetes кластером
+Rel(nginx, k8s_cluster, "Проксирование запросов", "HTTP/HTTPS")
 
-Rel(app_server, auth_service, "Аутентификация и авторизация", "HTTP/REST")
-Rel(app_server, content_service, "Управление контентом", "HTTP/REST")
-Rel(app_server, notification_service, "Отправка уведомлений", "HTTP/REST")
-Rel(app_server, database, "Чтение и запись данных", "JDBC/SSL")
-
-Rel(auth_service, database, "Хранение данных пользователей", "JDBC/SSL")
-Rel(auth_service, sso_provider, "Проверка учетных данных", "OAuth2/OpenID Connect")
-
-Rel(content_service, database, "Хранение метаданных контента", "JDBC/SSL")
-Rel(content_service, storage_service, "Хранение файлов контента", "S3 API")
-
-Rel(notification_service, email_service, "Отправка email уведомлений", "SMTP")
-Rel(notification_service, sms_service, "Отправка SMS уведомлений", "HTTP API")
+' Скрытые соединения для поддержания структуры диаграммы
+k8s_cluster ---[hidden]---> databases
 
 @enduml
