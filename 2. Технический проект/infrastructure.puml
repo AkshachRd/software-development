@@ -5,9 +5,9 @@
 title "C4. Инфроструктура системы электронного обучения"
 
 package "Яндекс Облако" as cloud {
-    Container(nginx, "Nginx", "Nginx", "Обратный прокси и балансировщик нагрузки")
+    Container(nginx, "Yandex Network Load Balancer", "", "Обратный прокси и балансировщик нагрузки")
 
-    package "Kubernetes Кластер" as k8s_cluster {
+    package "Yandex Managed Service for Kubernetes" as k8s_cluster {
         package "Auth Pod" as auth_pod {
             Container(auth_service, "Auth Service", "Go", "Сервис аутентификации и авторизации")
         }
@@ -61,10 +61,10 @@ package "Яндекс Облако" as cloud {
         }
     }
 
-    Container(kafka, "Брокер сообщений", "Apache Kafka", "Асинхронная связь между сервисами")
+    Container(kafka, "Yandex Managed Service for Apache Kafka", "Apache Kafka", "Асинхронная связь между сервисами")
 }
 
-package "Серверы Баз Данных" as databases {
+package "Yandex Managed Service for PostgreSQL" as databases {
     ContainerDb(user_db, "User Database", "PostgreSQL", "Хранение информации о пользователях")
     ContainerDb(course_db, "Course Content Database", "PostgreSQL", "Хранение материалов и метаданных курсов")
     ContainerDb(statistics_db, "Statistics Database", "PostgreSQL", "Хранение данных аналитики и статистики")

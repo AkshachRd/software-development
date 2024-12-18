@@ -2,9 +2,13 @@
 
 title "C4. Обслуживание системы электронного обучения"
 
-package "Яндекс Облако Kubernates" as cloud_infra {
+package "Yandex Managed Service for Kubernetes" as cloud_infra {
   [Docker] as docker << (C, #FFAAAA) >>
   [Контейнеры] as containers << (C, #FFAAAA) >>
+}
+
+package "Yandex Container Registry" as yandex_registry {
+    [Реестр контейнеров] as container_registry << (C, #FFAAAA) >>
 }
 
 package "Система E-learning - обслуживание" as maintenance {
@@ -37,8 +41,6 @@ package "Разработка" as development {
       [Build Stage Test] as build_stage_test << (C, #FFAAAA) >>
       [Testing Stage Test] as testing_stage_test << (C, #FFAAAA) >>
     }
-    
-    [Реестр контейнеров] as container_registry << (C, #FFAAAA) >>
 }
 
 admin --> monitoring_service : "Мониторинг системы"
