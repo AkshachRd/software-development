@@ -4,7 +4,7 @@
 
 title "C4. Инфроструктура системы электронного обучения"
 
-package "Облачный Провайдер" as cloud {
+package "Яндекс Облако" as cloud {
     Container(nginx, "Nginx", "Nginx", "Обратный прокси и балансировщик нагрузки")
 
     package "Kubernetes Кластер" as k8s_cluster {
@@ -40,8 +40,8 @@ package "Облачный Провайдер" as cloud {
             Container(forum_service, "Forum Service", "Go", "Форумы и комментарии к курсам")
         }
 
-        package "Analytics Pod" as analytics_pod {
-            Container(analytics_service, "Analytics Service", "Go", "Статистика и аналитика")
+        package "Statistics Pod" as analytics_pod {
+            Container(statistics_service, "Analytics Service", "Go", "Статистика и аналитика")
         }
 
         package "Messaging Pod" as messaging_pod {
@@ -67,7 +67,7 @@ package "Облачный Провайдер" as cloud {
 package "Серверы Баз Данных" as databases {
     ContainerDb(user_db, "User Database", "PostgreSQL", "Хранение информации о пользователях")
     ContainerDb(course_db, "Course Content Database", "PostgreSQL", "Хранение материалов и метаданных курсов")
-    ContainerDb(analytics_db, "Analytics Database", "PostgreSQL", "Хранение данных аналитики и статистики")
+    ContainerDb(statistics_db, "Statistics Database", "PostgreSQL", "Хранение данных аналитики и статистики")
     ContainerDb(notification_db, "Notification Database", "PostgreSQL", "Хранение данных уведомлений")
     ContainerDb(forum_db, "Forum Database", "PostgreSQL", "Хранение сообщений форумов и комментариев")
     ContainerDb(cert_db, "Certificate Database", "PostgreSQL", "Хранение данных сертификатов")
@@ -88,7 +88,7 @@ Rel(testing_service, user_db, "Запись результатов", "Go Databas
 Rel(certificate_service, cert_db, "Чтение/Запись", "Go Database Driver")
 Rel(notification_service, notification_db, "Чтение/Запись", "Go Database Driver")
 Rel(forum_service, forum_db, "Чтение/Запись", "Go Database Driver")
-Rel(analytics_service, analytics_db, "Чтение/Запись", "Go Database Driver")
+Rel(statistics_service, statistics_db, "Чтение/Запись", "Go Database Driver")
 Rel(messaging_service, user_db, "Чтение профилей", "Go Database Driver")
 Rel(admin_service, user_db, "Администрирование", "Go Database Driver")
 Rel(admin_service, course_db, "Администрирование", "Go Database Driver")
