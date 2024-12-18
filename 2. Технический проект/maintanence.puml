@@ -1,5 +1,7 @@
 @startuml
 
+title "C4. Обслуживание системы электронного обучения"
+
 package "Облачная инфраструктура" as cloud_infra {
   [Docker] as docker << (C, #FFAAAA) >>
   [Контейнеры] as containers << (C, #FFAAAA) >>
