@@ -1,0 +1,43 @@
+@startuml
+participant "Студент" as Student
+participant "Система" as System
+
+Student -> System: Регистрация
+System -> System: Проверка данных
+alt Данные корректны
+    System -> Student: Подтверждение регистрации
+    Student -> System: Авторизация
+    System -> System: Проверка логина/пароля
+    alt Авторизация успешна
+        System -> Student: Доступ к системе
+        Student -> System: Просмотр курсов
+        System -> Student: Отображение списка курсов
+        Student -> System: Выбор курса
+        System -> Student: Предоставление доступа к курсу
+        loop По каждому разделу
+            Student -> System: Запрос материала раздела
+            System -> Student: Отображение материала
+            Student -> System: Прохождение теста
+            System -> System: Проверка результатов теста
+            alt Тест сдан
+                System -> Student: Допуск к следующему разделу
+            else
+                System -> Student: Повторить тест
+            end
+        end
+        Student -> System: Сдача итогового экзамена
+        System -> System: Проверка экзамена
+        alt Экзамен сдан
+            System -> Student: Выдача сертификата
+        else
+            System -> Student: Пересдача экзамена
+        end
+        Student -> System: Отзыв о курсе
+        System -> System: Сохранение отзыва
+    else
+        System -> Student: Ошибка авторизации
+    end
+else
+    System -> Student: Ошибка регистрации
+end
+@enduml
