@@ -1,43 +1,79 @@
 @startuml Диаграмма контейнеров
-title "C4. Контейнеры системы обмена валют"
+title "C4. Контейнеры системы электронного обучения"
 
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
-!$ICONURL = "https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v3.0.0/icons"
-!include $ICONURL/common.puml
-!include $ICONURL/devicons/react.puml
-!include $ICONURL/devicons2/postgresql.puml
 
 ' Персоны
-Person(user, "Пользователь", "Запрос на обмен валюты и проверка курсов")
-Person(admin, "Администратор", "Управление учетными записями пользователей и настройка системы")
+Person(student, "Обучающийся", "Прохождение курсов, сдача тестов, получение отзывов и сертификатов.")
+Person(teacher, "Преподаватель", "Создание и редактирование курсов, мониторинг успеваемости студентов, предоставление обратной связи")
+Person(admin, "Администратор", "Управление пользователями, курсами, доступами, статистика по курсам")
+Person(support, "Техподдержка", "Решение технических проблем, обновление системы")
 
 ' Система
-System_Boundary(appBoundary, "Система обмена валют") {
-    Container(currencyExchangeService, "Сервис обмена валют", "Java", "Обработка запросов на обмен валюты с использованием микросервисной архитектуры")
-    Container(webApp, "Веб-приложение", "React", "Интерфейс для пользователей для обмена валют и проверки курсов")
-    Container(db, "База данных", "PostgreSQL", "Хранение данных о пользователях, курсах валют и транзакциях")
-    Container(apiIntegration, "Сервис API интеграции", "REST API", "Интеграция с платежными системами для многоканальной обработки платежей")
-    Container(exchangeRateService, "Сервис курсов валют", "Java", "Интеграция с API Центробанка для получения актуальных курсов валют")
-    Container(monitoringService, "Сервис мониторинга", "Prometheus", "Мониторинг состояния системы")
-    Container(testingService, "Сервис тестирования", "Selenium", "Автоматическое тестирование пользовательского интерфейса")
+System_Boundary(appElearning, "Система электронного обучения") {
+   
+    Container(webApp, "Веб-приложение", "React", "Пользовательский интерфейс для прохождения, создания курсов и обратной связи")
+    
+    
+        Container(APIGateway, "Апи сервис", "nGinx", "")
+        Container(userService, "Контекст пользователь", "GO", "Операции над пользователями, управление данными, общение с SSO")
+        Container(contentManagerService, "Сервис управления контентом", "GO", "создание, редактирование, назначение курсов")
+        Container(testManagerService, "Сервис управления тестами", "GO", "создание, редактирование тестов и экзаменов")
+        Container(communicationService, "Сервис обратной связи", "GO", "Обеспечение обратной связи и форумов на курсах")
+        Container(statisticsService, "Сервис сбора статистики", "GO", "Собирает данные нужные для каждого рода статистики")
+        Container(backupService, "Сервис резервного копирования", "GO", "Собирает данные для РК, обновляет их во внешнем сервисе")
+        Container(notificater, "Сервис уведомлений","перенаправляет уведомления")
+    
+
+
+    Container(crone, "Планировщик", "PHP", "определяет таймауты событий внутри системы")
+    Container(dbStatistics, "База данных статистики", "PostgreeSQL", "Хранение данных о пользователях, курсах, сообщениях, оцнках...")
+    Container(dbContent, "База данных контента", "PostgreeSQL", "Хранение данных о пользователях, курсах, сообщениях, оцнках...")
 }
+'типы бд: статистики, БД Контента, sso, 
 
-' Внешние системы
-System_Ext(financialAPI, "API финансовых рынков", "Получение актуальных курсов валют")
-System_Ext(paymentAPI, "API интеграция", "Интеграция с платежными системами")
-System_Ext(notificationServiceExt, "Сервис уведомлений", "Отправка уведомлений пользователям")
 
-' Расположение элементов
-user ----> webApp : "Использует\n[HTTP/TCP]"
-admin ----> webApp : "Использует\n[HTTP/TCP]"
-webApp --> currencyExchangeService : "API вызовы\n[HTTPS/REST]"
-currencyExchangeService --> db : "Чтение/запись\n[SQL]"
-currencyExchangeService --> apiIntegration : "Запросы на обработку платежей\n[HTTPS/REST]"
-apiIntegration --> paymentAPI : "Интеграция с платежными системами\n[HTTPS/REST]"
-currencyExchangeService ---> notificationServiceExt : "Отправка уведомлений\n[HTTPS/REST]"
-exchangeRateService ----> financialAPI : "Запрос актуальных курсов\n[HTTPS/REST]"
-exchangeRateService --> currencyExchangeService : "Обновление курсов\n[HTTPS/REST]"
-monitoringService --> currencyExchangeService : "Мониторинг состояния\n[TCP]"
-testingService ---> webApp : "Тестирование интерфейса\n[HTTP/TCP]"
+System_Ext(backupServiceInternal, "Внешний сервис резервного копирования", "")
+System_Ext(SSO, "SingleSignOn", "Сервис сквозного прохода")
+System_Ext(notificaterInternal, "Внешний сервис уведомлений", "Отправка уведомлений")
+System_Ext(viewVideoService, "Сервис отображения видео")
 
+Rel(student, webApp, "", "")
+Rel(teacher, webApp, "", "")
+Rel(admin, webApp, "", "")
+Rel(support, webApp, "", "")
+
+Rel(webApp, APIGateway, "", "")
+
+Rel(webApp, APIGateway, "", "")
+Rel(APIGateway, userService, "", "")
+Rel(APIGateway, contentManagerService, "", "")
+Rel(APIGateway, testManagerService, "", "")
+Rel(APIGateway, statisticsService, "", "")
+Rel(APIGateway, communicationService, "", "")
+
+Rel(userService, SSO, "", "")
+Rel(userService, notificater, "", "")
+
+Rel(contentManagerService, dbContent, "", "")
+Rel(contentManagerService, testManagerService, "", "")
+Rel(contentManagerService, viewVideoService, "", "")
+Rel(contentManagerService, notificater, "", "")
+Rel(contentManagerService, communicationService, "", "")
+
+Rel(testManagerService, dbContent, "", "")
+Rel(testManagerService, notificater, "", "")
+
+Rel(statisticsService, dbStatistics, "", "")
+
+Rel(notificater, notificaterInternal, "", "")
+
+Rel(backupService, dbStatistics, "", "")
+Rel(backupService, dbContent, "", "")
+Rel(backupService, backupServiceInternal, "", "")
+
+Rel(communicationService, dbContent, "", "")
+
+Rel(crone, backupService, "", "")
+ 
 @enduml

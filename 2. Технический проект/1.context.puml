@@ -3,21 +3,23 @@ title "E-Learning"
 
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 !$ICONURL = "https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v3.0.0/icons"
-!include $ICONURL/common.puml
+
+
+
 
 Person(student, "Обучающийся", "Прохождение курсов, сдача тестов, получение отзывов и сертификатов.")
 Person(teacher, "Преподаватель", "Создание и редактирование курсов, мониторинг успеваемости студентов, предоставление обратной связи")
 Person(admin, "Администратор", "Управление пользователями, курсами, доступами, статистика по курсам")
 Person(support, "Техподдержка", "Решение технических проблем, обновление системы")
 
-Container(eLearningSystem, "Система E-Learning", "Php, Go, React", "Сервис онлайн обучения")
+Container(eLearningSystem, "Система E-Learning", "Php, Go, React", "Сервис онлайн обучения", $sprite="react")
 
 student --> eLearningSystem
 teacher --> eLearningSystem
 admin --> eLearningSystem
 support --> eLearningSystem
 
-System_Ext(reserveCopy, "Сервис резервного копирования", "Отправка уведомлений пользователям")
+System_Ext(reserveCopy, "Сервис резервного копирования", "")
 System_Ext(SSO, "SingleSignOn", "Сервис сквозного прохода")
 System_Ext(notificater, "Сервис уведомлений", "Отправка уведомлений")
 System_Ext(viewVideoService, "Сервис отображения видео")

@@ -1,35 +1,53 @@
-@startuml API. Диаграмма компонентов
-title "C4. Компоненты сервиса обмена валют"
+@startuml 
+title "C4. Сервис управления контентом"
 
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
-!$ICONURL = "https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v3.0.0/icons"
-!include $ICONURL/common.puml
-!include $ICONURL/devicons/react.puml
-!include $ICONURL/devicons/java.puml
 
-Component(currencyExchangeService, "Сервис обмена валют", "Java", $sprite="java")
+System_Boundary(contentManagerService, "Сервис управления контентом") {
 
-System_Boundary(currencyExchangeBoundary, "Currency Exchange Service") {
+' Domain доменные сущности в основе бизнес-логики
+    System_Boundary(Domain, "Domain") {
+        Component(course, "Course", "", "")
+        Component(chapter, "Chapter", "", "")
+        Component(theme, "Theme", "", "")
+        Component(attachmentFile, "Attachment", "", "")
+        Component(review, "Review", "", "")
+        Component(forum, "Forum", "", "")
+        Component(test, "Test", "", "")
+        Component(exam, "Exam", "", "")
+    }
 
-    Component(CurrencyExchangeAPI, "CurrencyExchangeControler", "Java", "API для обработки запросов на обмен валюты")
-    Component(CurrencyExchangeProcessor, "CurrencyExchangeService", "Java", "Основная логика обработки обмена валюты")
-    Component(RateRepository, "RateRepository", "Java", "Получение актуальных курсов валют из БД")
-    Component(UserAccountsRepository, "UserAccountsRepository", "Java", "Получение информации о пользователях")
+' APP модифицирование сущностей БЛ
+    System_Boundary(APP, "APP") {
+        Component(courseService, "AppCourse", "Application Service", "Управление курсами")
+        Component(chapterService, "AppChapter", "Application Service", "Управление разделами")
+        Component(themeService, "AppTheme", "Application Service", "Управление темами")
+        Component(reviewService, "AppReview", "Application Service", "Управление отзывами")
+        Component(forumService, "AppForum", "Application Service", "Управление форумами")
+    }
+
+' Infrastructure взаимодействие со сторонними сервисами
+System_Boundary(Infrastructure, "Infrastructure") {
+    Component(dbContent, "dbContentService", "PostgreSQL", "")
+    Component(dbStatistics, "dbStatisticsService", "PostgreSQL", "")
+    Component(notificater, "notificaterService", "GO", "")
+    Component(communicationService, "communicationService", "GO", "")
+    Component(backupService, "backupService", "GO", "")
+    Component(viewVideoService,"videoService", "GO", "")
 }
 
-Component(ExchangeRatesDB, "DB", "PostgreSQL", "Хранение актуальных данных")
 
-Component(webApp, "Веб-приложение", "React", "Интерфейс для пользователей для обмена валют и проверки курсов")
+' Controller
+    System_Boundary(Presentation, "Controller") {
+        Component(webApp, "APIWebApp", "", "")
+    }
+}
 
-webApp --> CurrencyExchangeAPI : "Запросы на обмен валюты"
-CurrencyExchangeAPI --> CurrencyExchangeProcessor : "Обработка запросов на обмен валюты"
-CurrencyExchangeProcessor --> RateRepository : "Запрос актуальных курсов валют"
-CurrencyExchangeProcessor --> UserAccountsRepository : "Проверка баланса"
-RateRepository --> ExchangeRatesDB : "Запрос курсов валют"
-UserAccountsRepository --> ExchangeRatesDB : "Запрос информации о пользователях"
-
-Component(EventBus, "EventBus", "RabbitMQ", "Обработка и маршрутизация событий")
-
-CurrencyExchangeProcessor ---> EventBus : "Публикация события обмена валюты"
+' Внешние контейнеры
+Component(dbStatistics, "База данных статистики", "PostgreSQL", "")
+Component(dbContent, "База данных контента", "PostgreSQL", "")
+Component(notificater, "Сервис уведомлений", "GO", "")
+Component(communicationService, "Сервис обратной связи", "GO", "")
+Component(viewVideoService, "Сервис отображения видео", "")
 
 @enduml
