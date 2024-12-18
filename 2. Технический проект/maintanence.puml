@@ -1,63 +1,73 @@
 @startuml
-!theme vibrant
 
-package "Яндекс.Облако Kubernetes" as k8s {
+package "Облачная инфраструктура" as cloud_infra {
   [Docker] as docker << (C, #FFAAAA) >>
-  [Containers] as containers << (C, #FFAAAA) >>
+  [Контейнеры] as containers << (C, #FFAAAA) >>
 }
 
-package "Система обмена валют - обслуживание" as maintenance {
-    actor "Системный администратор" as sys_admin
-    package "Яндекс.Облако" as cloud {
-      [Система мониторинга Zabbix] as monitoring_service << (C, #FFAAAA) >>
-      [Система бэкапов Velero] as backup_service << (C, #FFAAAA) >>
+package "Система E-learning - обслуживание" as maintenance {
+    actor "Администратор" as admin
+    actor "Техническая поддержка" as tech_support
+    package "Облачные сервисы" as cloud_services {
+      [Система мониторинга] as monitoring_service << (C, #FFAAAA) >>
+      [Система резервного копирования] as backup_service << (C, #FFAAAA) >>
     }
 }
 
-package "Внешние сервисы" as outer_services {
+package "Внешние сервисы" as external_services {
     package "Канал уведомлений" as notifications {
-        [Почтовый шлюз] as email_service << (C, #FFAAAA) >>
+        [Email шлюз] as email_service << (C, #FFAAAA) >>
+        [Система push-уведомлений] as push_service << (C, #FFAAAA) >>
     }
 }
 
 package "Разработка" as development {
     actor "Разработчик" as developer
-    [Система контроля версий (Git GitLab)] as vcs << (C, #FFAAAA) >>
-    [CI/CD GitLab (Ветка main)] as cicd << (C, #FFAAAA) >>
-    [CI/CD GitLab (Ветка dev)] as cicdtest << (C, #FFAAAA) >>
-    
+    [Система контроля версий (GitLab)] as vcs << (C, #FFAAAA) >>
+    [CI/CD Gitlab (Ветка main)] as cicd << (C, #FFAAAA) >>
+    [CI/CD Gitlab (Ветка dev)] as cicdtest << (C, #FFAAAA) >>
+
     package "CI/CD Pipeline (PROD)" as build {
-      [Build Stage] as buildstage << (C, #FFAAAA) >>
-      [Testing Stage] as testingstage << (C, #FFAAAA) >>
+      [Build Stage] as build_stage << (C, #FFAAAA) >>
+      [Testing Stage] as testing_stage << (C, #FFAAAA) >>
     }
-
-    package "CI/CD Pipeline (TEST)" as buildtest {
-      [Build Stage Test] as buildstagetest << (C, #FFAAAA) >>
-      [Testing Stage Test] as testingstagetest << (C, #FFAAAA) >>
+    package "CI/CD Pipeline (TEST)" as build_test {
+      [Build Stage Test] as build_stage_test << (C, #FFAAAA) >>
+      [Testing Stage Test] as testing_stage_test << (C, #FFAAAA) >>
     }
-
-    [Реестр контейнеров GitLab] as containeregistry << (C, #FFAAAA) >>
+    
+    [Реестр контейнеров] as container_registry << (C, #FFAAAA) >>
 }
 
-sys_admin --> monitoring_service : "Мониторинг состояния системы"
-sys_admin --> backup_service : "Контроль и восстановление данных"
-monitoring_service --> email_service : "Уведомления о сбоях и предупреждениях"
+admin --> monitoring_service : "Мониторинг системы"
+admin --> backup_service : "Управление резервными копиями"
+tech_support --> monitoring_service : "Отслеживание проблем"
+monitoring_service --> email_service : "Уведомления о событиях"
+monitoring_service --> push_service : "Push-уведомления"
+
 developer --> vcs : "PUSH коммитов"
-vcs --> cicd : "CI/CD для PROD"
-vcs --> cicdtest : "CI/CD для dev"
-cicd --> buildstage : "Запуск pipeline"
-cicdtest --> buildstagetest : "Запуск pipeline"
-buildstage --> containeregistry : "Сборка Docker-образов и PUSH"
-buildstagetest --> containeregistry : "Сборка Docker-образов и PUSH"
-containeregistry <-- testingstage : "PULL Docker-образов"
-containeregistry <-- testingstagetest : "PULL Docker-образов"
-buildstage --> testingstage : "PASS"
-buildstagetest --> testingstagetest : "PASS"
-testingstage --> docker : "PULL обновлений [SSH] (Тэг main)"
-testingstagetest --> docker : "PULL обновлений [SSH] (Тэг dev)"
-docker --> containeregistry : "PULL Docker-образов"
-docker --> containers : "Обновление и развёртка контейнеров"
+vcs --> cicd : "Вызов CI/CD для PROD окружения"
+vcs --> cicdtest : "Вызов CI/CD для dev окружения"
+
+build_stage --> testing_stage : "PASS"
+build_stage_test --> testing_stage_test : "PASS"
+build_stage --> container_registry : "Сборка Docker-образов и PUSH"
+build_stage_test --> container_registry : "Сборка Docker-образов и PUSH"
+
+cicd --> build_stage : "Запуск pipeline"
+cicdtest --> build_stage_test : "Запуск pipeline"
+testing_stage --> container_registry : "PULL Docker-образов"
+testing_stage_test --> container_registry : "PULL Docker-образов"
+
+testing_stage --> docker : "PULL обновлений [SSH] (Тэг main)"
+testing_stage_test --> docker : "PULL обновлений [SSH] (Тэг dev)"
+docker --> container_registry : "PULL новых образов"
+docker --> containers : "Развертывание контейнеров"
+
+backup_service --> containers : "Резервное копирование данных"
 monitoring_service --> containers : "Проверка состояния"
-backup_service --> containers : "Создание и восстановление бэкапов"
+
+tech_support --> containers : "Решение технических проблем"
+admin --> containers : "Управление приложением"
 
 @enduml
